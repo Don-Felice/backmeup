@@ -3,7 +3,7 @@
 
 # Backup folders and files
 
-# generic imports
+# external imports
 from pathlib import Path
 import argparse
 
@@ -13,7 +13,7 @@ from backmeup.utils import backmeup
 
 
 if __name__ == "__main__":
-    #TODO
+
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--source_dir", type=str, default=None,
                         help="source directory")
