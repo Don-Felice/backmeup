@@ -11,7 +11,6 @@ import argparse
 from backmeup.utils import backmeup
 
 
-
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
