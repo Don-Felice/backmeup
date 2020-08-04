@@ -38,7 +38,8 @@ def conditional_copy(path_source, path_dest, dry_run=False):
             os.makedirs(os.path.dirname(str(path_dest)), exist_ok=True)
             shutil.copy2(path_source, path_dest)
         return 1
-    elif (os.path.getmtime(str(path_source)) - os.path.getmtime(str(path_dest))) > 1:
+    elif (os.path.getmtime(str(path_source)) -
+          os.path.getmtime(str(path_dest))) > 1:
         filename = path_source.name
         sys.stdout.write(f' - updating {filename}')
         sys.stdout.flush()
@@ -85,9 +86,10 @@ def backup_dir(dir_source, dir_dest, dry_run=False):
     cur_num_file = 1
     for cur_file in list_files_source:
 
-        num_copied += conditional_copy(Path(cur_file),
-                                       Path(str(cur_file).replace(str(dir_source),
-                                                                  str(dir_dest))),
+        num_copied += \
+            conditional_copy(Path(cur_file),
+                             Path(str(cur_file).replace(str(dir_source),
+                             str(dir_dest))),
                                        dry_run=dry_run)
         progress(cur_num_file, num_checked, suffix='of files checked')
         cur_num_file += 1
