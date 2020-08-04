@@ -88,7 +88,8 @@ def backup_dir(dir_source, dir_dest, dry_run=False):
         num_copied += \
             conditional_copy(Path(cur_file),
                              Path(str(cur_file).replace(str(dir_source),
-                             str(dir_dest))),
+                                                        str(dir_dest))
+                                  ),
                              dry_run=dry_run)
         progress(cur_num_file, num_checked, suffix='of files checked')
         cur_num_file += 1
