@@ -85,12 +85,11 @@ def backup_dir(dir_source, dir_dest, dry_run=False):
 
     cur_num_file = 1
     for cur_file in list_files_source:
-
         num_copied += \
             conditional_copy(Path(cur_file),
                              Path(str(cur_file).replace(str(dir_source),
                              str(dir_dest))),
-                                       dry_run=dry_run)
+                             dry_run=dry_run)
         progress(cur_num_file, num_checked, suffix='of files checked')
         cur_num_file += 1
     num_ignored = num_checked - num_copied
@@ -136,5 +135,5 @@ def backmeup(dir_source=None, dir_dest=None, cfg_table=None, dry_run=False):
         print(f'Stored {num_updated} files '
               f'from {num_checked} in {dir_source}.')
     time_end = time.time()
-    time_run = (time_end-time_start)/60
+    time_run = (time_end - time_start) / 60
     print(f"Hurray! All files backed up in only {time_run:5.2f} minutes")
