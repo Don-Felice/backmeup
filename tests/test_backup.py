@@ -52,8 +52,9 @@ def dir_testrun():
 
 @pytest.fixture(scope='function')
 def list_dirs(dir_testrun, num_dirs=2):
-    list_dirs = [[dir_testrun / 'data' / ('dir_source_' + str(i+1)),
-                  dir_testrun / 'data' / ('dir_dest_' + str(i+1))] for i in range(num_dirs)]
+    list_dirs = [[dir_testrun / 'data' / ('dir_source_' + str(i + 1)),
+                  dir_testrun / 'data' / ('dir_dest_' + str(i + 1))] for i in
+                 range(num_dirs)]
     return list_dirs
 
 
@@ -65,7 +66,6 @@ def cfg_testrun(dir_testrun):
 
 
 def test_backup(cfg_testrun, list_dirs):
-
     # run the actual function to test
     backmeup(cfg_table=cfg_testrun)
     print('Backup went through.')
@@ -74,10 +74,14 @@ def test_backup(cfg_testrun, list_dirs):
     for dir_pair in list_dirs:
         dir_source, dir_dest = dir_pair
         print('---------------------')
-        print(f'checking consistencies of folders:\n{str(dir_source)}\nand\n{str(dir_dest)}.')
-        list_files_source = [x for x in dir_source.rglob("*") if not x.is_dir()]
+        print(
+            f'checking consistencies of folders:'
+            f'\n{str(dir_source)}\nand\n{str(dir_dest)}.')
+        list_files_source = [x for x in dir_source.rglob("*") if
+                             not x.is_dir()]
         for cur_file_source in list_files_source:
-            cur_file_dest = Path(str(cur_file_source).replace(str(dir_source), str(dir_dest)))
+            cur_file_dest = Path(
+                str(cur_file_source).replace(str(dir_source), str(dir_dest)))
             print(f'checking file {cur_file_source}')
             # check for existence
             assert cur_file_dest.exists(), \
@@ -94,14 +98,17 @@ def test_backup_indi(list_dirs):
         print(f'Individual backup went through for {dir_source}.')
         # compare files
         print('---------------------')
-        print(f'checking consistencies of folders:\n{str(dir_source)}\nand\n{str(dir_dest)}.')
-        list_files_source = [x for x in dir_source.rglob("*") if not x.is_dir()]
+        print(
+            f'checking consistencies of folders:'
+            f'\n{str(dir_source)}\nand\n{str(dir_dest)}.')
+        list_files_source = [x for x in dir_source.rglob("*") if
+                             not x.is_dir()]
         for cur_file_source in list_files_source:
-            cur_file_dest = Path(str(cur_file_source).replace(str(dir_source), str(dir_dest)))
+            cur_file_dest = Path(
+                str(cur_file_source).replace(str(dir_source), str(dir_dest)))
             print(f'checking file {cur_file_source}')
             # check for existence
             assert cur_file_dest.exists(), \
                 f'file {cur_file_source} not properly copied to dest dir.'
             # check for proper updating
             check_mtime_consistency(cur_file_source, cur_file_dest)
-
