@@ -4,7 +4,6 @@
 # Backup folders and files
 
 # external imports
-from pathlib import Path
 import argparse
 
 # project intern imports
@@ -25,4 +24,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    backmeup(dir_source=args.source_dir, dir_dest=args.dest_dir, cfg_table=args.cfg_file, dry_run=args.dry_run)
+    backmeup(dir_source=args.source_dir,
+             dir_dest=args.dest_dir,
+             cfg_table=args.cfg_file,
+             dry_run=args.dry_run)
