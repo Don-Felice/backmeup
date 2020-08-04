@@ -29,22 +29,22 @@ def conditional_copy(path_source, path_dest, dry_run=False):
     :param path_source:
     :param path_dest:
     """
-    if not os.path.exists(path_dest):
-        filename = os.path.basename(path_source)
+    if not path_dest.exists():
+        filename = path_source.name
         sys.stdout.write(f' - copying {filename}')
         sys.stdout.flush()
 
         if not dry_run:
-            os.makedirs(os.path.dirname(path_dest), exist_ok=True)
+            os.makedirs(os.path.dirname(str(path_dest)), exist_ok=True)
             shutil.copy2(path_source, path_dest)
         return 1
-    elif (os.path.getmtime(path_source) - os.path.getmtime(path_dest)) > 1:
-        filename = os.path.basename(path_source)
+    elif (os.path.getmtime(str(path_source)) - os.path.getmtime(str(path_dest))) > 1:
+        filename = path_source.name
         sys.stdout.write(f' - updating {filename}')
         sys.stdout.flush()
 
         if not dry_run:
-            os.makedirs(os.path.dirname(path_dest), exist_ok=True)
+            os.makedirs(os.path.dirname(str(path_dest)), exist_ok=True)
             shutil.copy2(path_source, path_dest)
         return 1
     else:
@@ -72,6 +72,11 @@ def backup_dir(dir_source, dir_dest, dry_run=False):
     :param dry_run:
     :return:
     """
+    if isinstance(dir_source, str):
+        dir_source = Path(dir_source)
+    if isinstance(dir_dest, str):
+        dir_dest = Path(dir_dest)
+
     list_files_source = list_filedirs(dir_source)
     # initialize stats
     num_checked = len(list_files_source)
@@ -80,8 +85,9 @@ def backup_dir(dir_source, dir_dest, dry_run=False):
     cur_num_file = 1
     for cur_file in list_files_source:
 
-        num_copied += conditional_copy(cur_file,
-                                       cur_file.replace(dir_source, dir_dest),
+        num_copied += conditional_copy(Path(cur_file),
+                                       Path(str(cur_file).replace(str(dir_source),
+                                                                  str(dir_dest))),
                                        dry_run=dry_run)
         progress(cur_num_file, num_checked, suffix='of files checked')
         cur_num_file += 1

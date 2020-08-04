@@ -46,7 +46,6 @@ def dir_testrun():
     finally:
         # cleanup stuff
         shutil.rmtree(path_testrun)
-        print('I RAN HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         print('Test Done')
 
 
