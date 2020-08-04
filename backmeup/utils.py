@@ -80,7 +80,9 @@ def backup_dir(dir_source, dir_dest, dry_run=False):
     cur_num_file = 1
     for cur_file in list_files_source:
 
-        num_copied += conditional_copy(cur_file, cur_file.replace(dir_source, dir_dest), dry_run=dry_run)
+        num_copied += conditional_copy(cur_file,
+                                       cur_file.replace(dir_source, dir_dest),
+                                       dry_run=dry_run)
         progress(cur_num_file, num_checked, suffix='of files checked')
         cur_num_file += 1
     num_ignored = num_checked - num_copied
@@ -97,25 +99,34 @@ def backmeup(dir_source=None, dir_dest=None, cfg_table=None, dry_run=False):
     :param dry_run:
     """
     assert not (cfg_table and dir_source or cfg_table and dir_dest), \
-        'Paths provided in config table and as parameters. You\'ll have to decide for one option I am afraid.'
+        'Paths provided in config table and as parameters. ' \
+        'You\'ll have to decide for one option I am afraid.'
     time_start = time.time()
 
     if cfg_table:
         # check_cfg_format(cfg_table)
         with open(cfg_table, newline='\n') as cfg_file:
-            reader = csv.DictReader(cfg_file, fieldnames=['source_dir', 'dest_dir'])
+            reader = csv.DictReader(cfg_file,
+                                    fieldnames=['source_dir', 'dest_dir'])
             # skip header row
             next(reader)
             for row in reader:
                 source_dir = row['source_dir']
                 dest_dir = row['dest_dir']
                 print(f'Backing up files in {source_dir} in {dest_dir}.')
-                num_checked, num_updated, num_ignored = backup_dir(source_dir, dest_dir, dry_run=dry_run)
-                print(f'\n Stored {num_updated} files from {num_checked} in {source_dir}.')
+                num_checked, num_updated, num_ignored = \
+                    backup_dir(source_dir,
+                               dest_dir,
+                               dry_run=dry_run)
+                print(f'\n Stored {num_updated} files '
+                      f'from {num_checked} in {source_dir}.')
     else:
         print(f'Backing up files in {dir_source} in {dir_dest}.')
-        num_checked, num_updated, num_ignored = backup_dir(dir_source, dir_dest, dry_run=dry_run)
-        print(f'Stored {num_updated} files from {num_checked} in {dir_source}.')
+        num_checked, num_updated, num_ignored = backup_dir(dir_source,
+                                                           dir_dest,
+                                                           dry_run=dry_run)
+        print(f'Stored {num_updated} files '
+              f'from {num_checked} in {dir_source}.')
     time_end = time.time()
     time_run = (time_end-time_start)/60
     print(f"Hurray! All files backed up in only {time_run:5.2f} minutes")
