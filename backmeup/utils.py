@@ -4,7 +4,6 @@
 # helper functions for backmeup tool
 
 from pathlib import Path
-import os
 import shutil
 import sys
 import time
@@ -35,17 +34,17 @@ def conditional_copy(path_source, path_dest, dry_run=False):
         sys.stdout.flush()
 
         if not dry_run:
-            os.makedirs(os.path.dirname(str(path_dest)), exist_ok=True)
+            path_dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(path_source, path_dest)
         return 1
-    elif (os.path.getmtime(str(path_source)) -
-          os.path.getmtime(str(path_dest))) > 1:
+    elif (path_source.stat().st_mtime -
+          path_dest.stat().st_mtime) > 1:
         filename = path_source.name
         sys.stdout.write(f' - updating {filename}')
         sys.stdout.flush()
 
         if not dry_run:
-            os.makedirs(os.path.dirname(str(path_dest)), exist_ok=True)
+            path_dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(path_source, path_dest)
         return 1
     else:
@@ -61,7 +60,7 @@ def list_filedirs(dir_source):
     if isinstance(dir_source, str):
         dir_source = Path(dir_source)
 
-    list_files = [str(x) for x in dir_source.rglob("*") if not x.is_dir()]
+    list_files = [x for x in dir_source.rglob("*") if not x.is_dir()]
     return list_files
 
 
@@ -86,7 +85,7 @@ def backup_dir(dir_source, dir_dest, dry_run=False):
     cur_num_file = 1
     for cur_file in list_files_source:
         num_copied += \
-            conditional_copy(Path(cur_file),
+            conditional_copy(cur_file,
                              Path(str(cur_file).replace(str(dir_source),
                                                         str(dir_dest))
                                   ),

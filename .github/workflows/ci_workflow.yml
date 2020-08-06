@@ -21,10 +21,12 @@ jobs:
 
       # Jetzt können wir den Linter losschicken.
       - name: Lint
-        run: |
-          flake8
+        uses: py-actions/flake8@v1
+        with:
+          max-line-length: "120"
+
 
       # Jetzt können wir die Tests ausführen.
       - name: Test all the Things
         run: |
-          pytest --cov=backmeup tests/
+          pytest --cov-report term-missing --cov=backmeup tests/
