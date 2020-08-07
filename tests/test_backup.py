@@ -40,6 +40,12 @@ def dir_testrun():
 
     shutil.copytree(Path(__file__).parent / 'data', path_testrun / 'data')
 
+    # update some files to change mtime
+    PathToUpdate = path_testrun / 'data' / 'dir_source_1' / 'subdir_1' / 'subsubdir_1' / 'L3_file_1.txt'
+    print('Writing to ', str(PathToUpdate))
+    with PathToUpdate.open('a') as filetoupdate:
+        filetoupdate.write('I have been updated.')
+
     try:
         yield path_testrun
 
