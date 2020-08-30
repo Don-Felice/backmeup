@@ -19,6 +19,8 @@ if __name__ == "__main__":
                         help="destination directory")
     parser.add_argument("-cfg", "--cfg_file", type=str, default=None,
                         help="destination directory")
+    parser.add_argument("-del", "--delete", action='store_true', default=False,
+                        help="delete files which exist in destination directory but not in the source directory")
     parser.add_argument("-dr", "--dry_run", action='store_true', default=False,
                         help="destination directory")
 
@@ -27,4 +29,5 @@ if __name__ == "__main__":
     backmeup(dir_source=args.source_dir,
              dir_dest=args.dest_dir,
              cfg_table=args.cfg_file,
+             delete=args.delete,
              dry_run=args.dry_run)

@@ -51,6 +51,16 @@ def compare_files(dir_source, dir_ref):
     print('---------------------')
 
 
+def contains_delme(directory):
+    list_content = [x for x in directory.rglob("*")]
+    delme_found = False
+    for cur_name in list_content:
+        if 'DELME' in str(cur_name):
+            delme_found = True
+            break
+    return delme_found
+
+
 @pytest.yield_fixture(scope='function')
 def dir_testrun():
     # create temporary test data
@@ -98,13 +108,33 @@ def cfg_testrun(dir_testrun):
 
 def test_backup_cfg(cfg_testrun, list_dirs):
     # run the actual function to test
-    backmeup(cfg_table=cfg_testrun)
+    backmeup(cfg_table=cfg_testrun, delete=False)
     print('Backup went through.')
 
-    # check for proper updating
+    # check for proper updating and deleting
     for dir_pair in list_dirs[0]:
         dir_source, dir_dest = dir_pair
         compare_files(dir_source, dir_dest)
+        assert contains_delme(dir_dest), \
+            'Files only present in destination dir have been deleted.'
+
+    # check for source dir integrity
+    for dir_pair in list_dirs[1]:
+        dir_source, dir_source_ref = dir_pair
+        compare_files(dir_source, dir_source_ref)
+
+
+def test_backup_cfg_delete(cfg_testrun, list_dirs):
+    # run the actual function to test
+    backmeup(cfg_table=cfg_testrun, delete=True)
+    print('Backup went through.')
+
+    # check for proper updating and deleting
+    for dir_pair in list_dirs[0]:
+        dir_source, dir_dest = dir_pair
+        compare_files(dir_source, dir_dest)
+        assert not contains_delme(dir_dest), \
+            'Files only present in destination dir have not been deleted.'
 
     # check for source dir integrity
     for dir_pair in list_dirs[1]:
