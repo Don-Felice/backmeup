@@ -4,7 +4,10 @@ on: [push]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v1
@@ -19,14 +22,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Jetzt können wir den Linter losschicken.
       - name: Lint
         uses: py-actions/flake8@v1
         with:
           max-line-length: "120"
 
-
-      # Jetzt können wir die Tests ausführen.
-      - name: Test all the Things
+      - name: Test
         run: |
           pytest --cov-report term-missing --cov=backmeup tests/
