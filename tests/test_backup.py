@@ -45,7 +45,7 @@ def compare_files(dir_source, dir_ref):
         print(f'checking file {cur_file_source}')
         # check for existence
         assert cur_file_dest.exists(), \
-            f'file {cur_file_source} not properly copied to dest dir.'
+            f'file {cur_file_source.name()} from {dir_source} not existent in {dir_ref}.'
         # check for proper updating
         check_mtime_consistency(cur_file_source, cur_file_dest)
     print('---------------------')
@@ -79,6 +79,10 @@ def dir_testrun():
     shutil.copytree(path_testrun / 'data' / 'dir_source_1', path_testrun / 'data' / 'dir_source_1_ref')
     shutil.copytree(path_testrun / 'data' / 'dir_source_2', path_testrun / 'data' / 'dir_source_2_ref')
 
+    # create dest reference for check dest dir integrity after dry run
+    shutil.copytree(path_testrun / 'data' / 'dir_dest_1', path_testrun / 'data' / 'dir_dest_1_ref')
+    shutil.copytree(path_testrun / 'data' / 'dir_dest_2', path_testrun / 'data' / 'dir_dest_2_ref')
+
     try:
         yield path_testrun
 
@@ -96,7 +100,10 @@ def list_dirs(dir_testrun, num_dirs=2):
     list_dirs_sourref = [[dir_testrun / 'data' / ('dir_source_' + str(i + 1)),
                           dir_testrun / 'data' / ('dir_source_' + str(i + 1) + '_ref')] for i in
                          range(num_dirs)]
-    return [list_dirs_sourdest, list_dirs_sourref]
+    list_dirs_destref = [[dir_testrun / 'data' / ('dir_dest_' + str(i + 1)),
+                          dir_testrun / 'data' / ('dir_dest_' + str(i + 1) + '_ref')] for i in
+                         range(num_dirs)]
+    return [list_dirs_sourdest, list_dirs_sourref, list_dirs_destref]
 
 
 @pytest.fixture(scope='function')
@@ -140,6 +147,17 @@ def test_backup_cfg_delete(cfg_testrun, list_dirs):
     for dir_pair in list_dirs[1]:
         dir_source, dir_source_ref = dir_pair
         compare_files(dir_source, dir_source_ref)
+
+
+def test_backup_cfg_dry(cfg_testrun, list_dirs):
+    # run the actual function to test
+    backmeup(cfg_table=cfg_testrun, delete=True, dry_run=True)
+    print('Backup went through.')
+
+    # check for dest dir integrity
+    for dir_pair in list_dirs[2]:
+        dir_dest, dir_dest_ref = dir_pair
+        compare_files(dir_dest, dir_dest_ref)
 
 
 def test_backup_indi(list_dirs):

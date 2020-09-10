@@ -5,7 +5,6 @@
 
 from pathlib import Path
 import shutil
-import sys
 import time
 import csv
 
@@ -17,8 +16,7 @@ def progress(count, total, suffix=''):
     percents = round(100.0 * count / float(total), 1)
     bar = '=' * filled_len + '-' * (bar_len - filled_len)
 
-    sys.stdout.write('\r [%s] %s%s %s' % (bar, percents, '% ', suffix))
-    sys.stdout.flush()
+    print('\r [%s] %s%s %s' % (bar, percents, '% ', suffix), flush=True)
 
 
 def conditional_copy(path_source, path_dest, dry_run=False):
@@ -30,8 +28,7 @@ def conditional_copy(path_source, path_dest, dry_run=False):
     """
     if not path_dest.exists():
         filename = path_source.name
-        sys.stdout.write(f' - copying {filename}')
-        sys.stdout.flush()
+        print(f' - copying {filename}', flush=True)
 
         if not dry_run:
             path_dest.parent.mkdir(parents=True, exist_ok=True)
@@ -40,12 +37,29 @@ def conditional_copy(path_source, path_dest, dry_run=False):
     elif (path_source.stat().st_mtime -
           path_dest.stat().st_mtime) > 1:
         filename = path_source.name
-        sys.stdout.write(f' - updating {filename}')
-        sys.stdout.flush()
+        print(f' - updating {filename}', flush=True)
 
-        if not dry_run:
+        #if not dry_run:
+        if True:
             path_dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(path_source, path_dest)
+        return 1
+    else:
+        return 0
+
+
+def conditional_delete(path_source, path_dest, list_source, dry_run=False):
+
+    if path_source not in list_source:
+        if path_dest.is_dir():
+            print(f' - deleting dir {str(path_dest)}', flush=True)
+            if not dry_run:
+                shutil.rmtree(str(path_dest))
+        else:
+            filename = path_dest.name
+            print(f' - deleting {filename}', flush=True)
+            if not dry_run:
+                path_dest.unlink()
         return 1
     else:
         return 0
@@ -103,31 +117,20 @@ def backup_dir(dir_source, dir_dest, delete=False, dry_run=False):
     num_ignored = num_checked - num_copied
 
     if delete:
-        print('All files stored, checking for files to delete.')
+        print('All files stored, checking for files to delete now.')
         list_files_dest, list_dirs_dest = list_filedirs(dir_dest)
 
         num_dest = len(list_files_dest)
         cur_num_file = 1
         for cur_file_dest in list_files_dest:
             cur_file_source = Path(str(cur_file_dest).replace(str(dir_dest), str(dir_source)))
-            if cur_file_source not in list_files_source:
-                filename = cur_file_dest.name
-                sys.stdout.write(f' - deleting {filename}')
-                sys.stdout.flush()
-
-                if not dry_run:
-                    cur_file_dest.unlink()
-
-                num_deleted += 1
+            num_deleted += conditional_delete(cur_file_source, cur_file_dest, list_files_source, dry_run=dry_run)
             progress(cur_num_file, num_dest, suffix='of files checked')
             cur_num_file += 1
 
         for cur_dir_dest in list_dirs_dest:
             cur_dir_source = Path(str(cur_dir_dest).replace(str(dir_dest), str(dir_source)))
-            if cur_dir_source not in list_dirs_source:
-                sys.stdout.write(f' - deleting dir {str(cur_dir_dest)}')
-                sys.stdout.flush()
-                cur_dir_dest.rmdir()
+            conditional_delete(cur_dir_source, cur_dir_dest, list_dirs_source, dry_run=dry_run)
 
     return num_checked, num_copied, num_ignored, num_deleted
 
