@@ -39,8 +39,7 @@ def conditional_copy(path_source, path_dest, dry_run=False):
         filename = path_source.name
         print(f' - updating {filename}', flush=True)
 
-        #if not dry_run:
-        if True:
+        if not dry_run:
             path_dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(path_source, path_dest)
         return 1
