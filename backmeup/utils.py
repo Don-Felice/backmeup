@@ -10,13 +10,19 @@ import csv
 
 
 def progress(count, total, suffix=''):
+    """
+
+    :param count:
+    :param total:
+    :param suffix:
+    """
     bar_len = 20
     filled_len = int(round(bar_len * count / float(total)))
 
     percents = round(100.0 * count / float(total), 1)
     bar = '=' * filled_len + '-' * (bar_len - filled_len)
 
-    print('\r [%s] %s%s %s' % (bar, percents, '% ', suffix), flush=True)
+    print('\r [%s] %s%s %s' % (bar, percents, '% ', suffix), flush=True, end=' ')
 
 
 def conditional_copy(path_source, path_dest, dry_run=False):
@@ -28,7 +34,7 @@ def conditional_copy(path_source, path_dest, dry_run=False):
     """
     if not path_dest.exists():
         filename = path_source.name
-        print(f' - copying {filename}', flush=True)
+        print(f' - copying {str(path_source)}', flush=True)
 
         if not dry_run:
             path_dest.parent.mkdir(parents=True, exist_ok=True)
@@ -37,7 +43,7 @@ def conditional_copy(path_source, path_dest, dry_run=False):
     elif (path_source.stat().st_mtime -
           path_dest.stat().st_mtime) > 1:
         filename = path_source.name
-        print(f' - updating {filename}', flush=True)
+        print(f' - updating from {str(path_source)}', flush=True)
 
         if not dry_run:
             path_dest.parent.mkdir(parents=True, exist_ok=True)
@@ -48,7 +54,14 @@ def conditional_copy(path_source, path_dest, dry_run=False):
 
 
 def conditional_delete(path_source, path_dest, list_source, dry_run=False):
+    """
 
+    :param path_source:
+    :param path_dest:
+    :param list_source:
+    :param dry_run:
+    :return:
+    """
     if path_source not in list_source:
         if path_dest.is_dir():
             print(f' - deleting dir {str(path_dest)}', flush=True)
@@ -99,6 +112,8 @@ def backup_dir(dir_source, dir_dest, delete=False, dry_run=False):
     if isinstance(dir_dest, str):
         dir_dest = Path(dir_dest)
 
+    print(f'Backing up files in {dir_source} in {dir_dest}.')
+
     list_files_source, list_dirs_source = list_filedirs(dir_source)
     # initialize stats
     num_checked = len(list_files_source)
@@ -113,7 +128,6 @@ def backup_dir(dir_source, dir_dest, delete=False, dry_run=False):
                                        dry_run=dry_run)
         progress(cur_num_file, num_checked, suffix='of files checked')
         cur_num_file += 1
-    num_ignored = num_checked - num_copied
 
     if delete:
         print('All files stored, checking for files to delete now.')
@@ -131,7 +145,8 @@ def backup_dir(dir_source, dir_dest, delete=False, dry_run=False):
             cur_dir_source = Path(str(cur_dir_dest).replace(str(dir_dest), str(dir_source)))
             conditional_delete(cur_dir_source, cur_dir_dest, list_dirs_source, dry_run=dry_run)
 
-    return num_checked, num_copied, num_ignored, num_deleted
+    print(f'\nStored {num_copied} files out of {num_checked} from \"{dir_source}\".'
+          f'\nDeleted {num_deleted} files in destination directory.')
 
 
 def backmeup(dir_source=None, dir_dest=None, cfg_table=None, delete=False, dry_run=False):
@@ -151,32 +166,22 @@ def backmeup(dir_source=None, dir_dest=None, cfg_table=None, delete=False, dry_r
     if cfg_table:
         # check_cfg_format(cfg_table)
         with open(cfg_table, newline='\n') as cfg_file:
-            reader = csv.DictReader(cfg_file,
-                                    fieldnames=['source_dir', 'dest_dir'])
+            reader = csv.DictReader(cfg_file, fieldnames=['source_dir', 'dest_dir'])
             # skip header row
             next(reader)
             for row in reader:
                 source_dir = row['source_dir']
                 dest_dir = row['dest_dir']
                 print(f'Backing up files in {source_dir} in {dest_dir}.')
-                num_checked, num_updated, num_ignored, num_deleted = \
-                    backup_dir(source_dir,
-                               dest_dir,
-                               delete=delete,
-                               dry_run=dry_run)
-                print(f'\n Stored {num_updated} files '
-                      f'from {num_checked} from {source_dir}. '
-                      f'Deleted {num_deleted} files in destination directory')
+                backup_dir(source_dir,
+                           dest_dir,
+                           delete=delete,
+                           dry_run=dry_run)
     else:
-        print(f'Backing up files in {dir_source} in {dir_dest}.')
-        num_checked, num_updated, num_ignored, num_deleted = backup_dir(dir_source,
-                                                                        dir_dest,
-                                                                        delete=delete,
-                                                                        dry_run=dry_run)
-        print(f'Stored {num_updated} files '
-              f'from {num_checked} in {dir_source}. '
-              f'Deleted {num_deleted} files in destination directory')
-
+        backup_dir(dir_source,
+                   dir_dest,
+                   delete=delete,
+                   dry_run=dry_run)
     time_end = time.time()
     time_run = (time_end - time_start) / 60
     print(f"Hurray! All files backed up in only {time_run:5.2f} minutes")
