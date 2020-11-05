@@ -33,7 +33,6 @@ def conditional_copy(path_source, path_dest, dry_run=False):
     :param path_dest:
     """
     if not path_dest.exists():
-        filename = path_source.name
         print(f' - copying {str(path_source)}', flush=True)
 
         if not dry_run:
@@ -42,7 +41,6 @@ def conditional_copy(path_source, path_dest, dry_run=False):
         return 1
     elif (path_source.stat().st_mtime -
           path_dest.stat().st_mtime) > 1:
-        filename = path_source.name
         print(f' - updating from {str(path_source)}', flush=True)
 
         if not dry_run:
